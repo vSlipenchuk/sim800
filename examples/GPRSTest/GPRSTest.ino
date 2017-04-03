@@ -11,13 +11,14 @@
 #define con Serial
 static const char* url = "http://arduinodev.com/datetime.php";
 
-CGPRS_SIM800 gprs;
+CGPRS_SIM800 gprs(7,&Serial) ; // create
 uint32_t count = 0;
 uint32_t errors = 0;
 
 void setup()
 {
   con.begin(9600);
+  Serial.begin(19200); // WE NEED IT do Manually
   while (!con);
 
   con.println("SIM800 TEST");

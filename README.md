@@ -1,6 +1,17 @@
+Initial Library here: https://github.com/stanleyhuangyc/Freematics
+
+My Minor Changes in constructor allows configure reset_pin and stream for connected modem:
+
+CGPRS_SIM800 gprs(6,&mySerial); // reset pin, modem stream
+
+We need manually set stream speed as mySerial.begin(19200)
+
+
+
 This library provides easy access to SIM800 based GSM/GPRS module by implementing straight-forward APIs for HTTP communication and some network features. For demonstartion of the API usage, please refer to the example sketches.
 
 Library API
+
 -----------
 
 Initialize the module

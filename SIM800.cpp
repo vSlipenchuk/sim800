@@ -9,13 +9,13 @@
 
 bool CGPRS_SIM800::init()
 {
-    SIM_SERIAL.begin(19200);
-    pinMode(SIM800_RESET_PIN, OUTPUT);
-    digitalWrite(SIM800_RESET_PIN, HIGH);
+ //  SIMSERIAL->begin(speed);
+    pinMode(reset, OUTPUT);
+    digitalWrite(reset, HIGH);
     delay(10);
-    digitalWrite(SIM800_RESET_PIN, LOW);
+    digitalWrite(reset, LOW);
     delay(100);
-    digitalWrite(SIM800_RESET_PIN, HIGH);
+    digitalWrite(reset, HIGH);
     delay(3000);
     if (sendCommand("AT")) {
         //sendCommand("AT+IPR=115200");
@@ -55,9 +55,9 @@ byte CGPRS_SIM800::setup(const char* apn)
   if (!sendCommand("AT+SAPBR=3,1,\"Contype\",\"GPRS\""))
     return 3;
   
-  SIM_SERIAL.print("AT+SAPBR=3,1,\"APN\",\"");
-  SIM_SERIAL.print(apn);
-  SIM_SERIAL.println('\"');
+  SIMSERIAL->print("AT+SAPBR=3,1,\"APN\",\"");
+  SIMSERIAL->print(apn);
+  SIMSERIAL->println('\"');
   if (!sendCommand(0))
     return 4;
   
@@ -156,18 +156,18 @@ bool CGPRS_SIM800::httpInit()
 bool CGPRS_SIM800::httpConnect(const char* url, const char* args)
 {
     // Sets url
-    SIM_SERIAL.print("AT+HTTPPARA=\"URL\",\"");
-    SIM_SERIAL.print(url);
+    SIMSERIAL->print("AT+HTTPPARA=\"URL\",\"");
+    SIMSERIAL->print(url);
     if (args) {
-        SIM_SERIAL.print('?');
-        SIM_SERIAL.print(args);
+        SIMSERIAL->print('?');
+        SIMSERIAL->print(args);
     }
 
-    SIM_SERIAL.println('\"');
+    SIMSERIAL->println('\"');
     if (sendCommand(0))
     {
         // Starts GET action
-        SIM_SERIAL.println("AT+HTTPACTION=0");
+        SIMSERIAL->println("AT+HTTPACTION=0");
         httpState = HTTP_CONNECTING;
         m_bytesRecv = 0;
         m_checkTimer = millis();
@@ -189,7 +189,7 @@ byte CGPRS_SIM800::httpIsConnected()
 }
 void CGPRS_SIM800::httpRead()
 {
-    SIM_SERIAL.println("AT+HTTPREAD");
+    SIMSERIAL->println("AT+HTTPREAD");
     httpState = HTTP_READING;
     m_bytesRecv = 0;
     m_checkTimer = millis();
@@ -222,13 +222,13 @@ byte CGPRS_SIM800::sendCommand(const char* cmd, unsigned int timeout, const char
     DEBUG.print('>');
     DEBUG.println(cmd);
 #endif
-    SIM_SERIAL.println(cmd);
+    SIMSERIAL->println(cmd);
   }
   uint32_t t = millis();
   byte n = 0;
   do {
-    if (SIM_SERIAL.available()) {
-      char c = SIM_SERIAL.read();
+    if (SIMSERIAL->available()) {
+      char c = SIMSERIAL->read();
       if (n >= sizeof(buffer) - 1) {
         // buffer full, discard first half
         n = sizeof(buffer) / 2 - 1;
@@ -259,13 +259,13 @@ byte CGPRS_SIM800::sendCommand(const char* cmd, const char* expected1, const cha
     DEBUG.print('>');
     DEBUG.println(cmd);
 #endif
-    SIM_SERIAL.println(cmd);
+    SIMSERIAL->println(cmd);
   }
   uint32_t t = millis();
   byte n = 0;
   do {
-    if (SIM_SERIAL.available()) {
-      char c = SIM_SERIAL.read();
+    if (SIMSERIAL->available()) {
+      char c = SIMSERIAL->read();
       if (n >= sizeof(buffer) - 1) {
         // buffer full, discard first half
         n = sizeof(buffer) / 2 - 1;
@@ -298,8 +298,8 @@ byte CGPRS_SIM800::sendCommand(const char* cmd, const char* expected1, const cha
 
 byte CGPRS_SIM800::checkbuffer(const char* expected1, const char* expected2, unsigned int timeout)
 {
-    while (SIM_SERIAL.available()) {
-        char c = SIM_SERIAL.read();
+    while (SIMSERIAL->available()) {
+        char c = SIMSERIAL->read();
         if (m_bytesRecv >= sizeof(buffer) - 1) {
             // buffer full, discard first half
             m_bytesRecv = sizeof(buffer) / 2 - 1;
@@ -319,6 +319,6 @@ byte CGPRS_SIM800::checkbuffer(const char* expected1, const char* expected2, uns
 
 void CGPRS_SIM800::purgeSerial()
 {
-  while (SIM_SERIAL.available()) SIM_SERIAL.read();
+  while (SIMSERIAL->available()) SIMSERIAL->read();
 }
 

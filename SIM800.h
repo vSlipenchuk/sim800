@@ -6,16 +6,13 @@
 *************************************************************************/
 
 #include <Arduino.h>
-#include <SoftwareSerial.h>
-
-extern SoftwareSerial mySerial;
 
 
 // change this to the pin connect with SIM800 reset pin
 #define SIM800_RESET_PIN 7
 
 // change this to the serial UART which SIM800 is attached to
-#define SIM_SERIAL mySerial
+#define SIM_SERIAL Serial
 
 // define DEBUG to one serial UART to enable debug information output
 //#define DEBUG Serial
@@ -41,7 +38,11 @@ typedef struct {
 
 class CGPRS_SIM800 {
 public:
-    CGPRS_SIM800():httpState(HTTP_DISABLED) {}
+    byte reset; // reset_pin
+    Stream  *SIMSERIAL; // my stream
+    CGPRS_SIM800(int _reset=SIM800_RESET_PIN,Stream *_s=&SIM_SERIAL):httpState(HTTP_DISABLED),reset(_reset) {
+	    SIMSERIAL=_s;
+	    }
     // initialize the module
     bool init();
     // setup network
